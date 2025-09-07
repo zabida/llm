@@ -1,0 +1,14 @@
+artifact_uri: file:///D:/mycode/python/llm/one/mlruns/0/443e95152cd74405a337d8dadb4355e7/artifacts
+end_time: 1754136994790
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 443e95152cd74405a337d8dadb4355e7
+run_name: resilient-roo-920
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1754136963317
+status: 3
+tags: []
+user_id: wzewo

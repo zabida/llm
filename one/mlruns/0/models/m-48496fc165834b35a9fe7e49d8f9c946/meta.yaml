@@ -1,0 +1,10 @@
+artifact_location: file:///D:/mycode/python/llm/one/mlruns/0/models/m-48496fc165834b35a9fe7e49d8f9c946/artifacts
+creation_timestamp: 1754137035016
+experiment_id: '0'
+last_updated_timestamp: 1754137037629
+model_id: m-48496fc165834b35a9fe7e49d8f9c946
+model_type: null
+name: torch-iris-10
+source_run_id: b08b93c7587a4acd84169228a6707f3f
+status: 2
+status_message: null
