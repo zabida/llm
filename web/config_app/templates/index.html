@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>我的项目</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}" >
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+</head>
+<body class="bg-light">
+<header>
+    <div class="header-content">
+        <img src="{{ url_for('static', filename='Up-Pointing-Hand-Emoji.png') }}" alt="项目图标" class="project-icon">
+        <h1>spring项目配置工具箱</h1>
+    </div>
+</header>
+<div class="container py-4">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ 'danger' if category == 'error' else 'info' }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form id="configForm" method="post" action="{{ url_for('submit') }}">
+        <div class="row mb-3">
+            <label class="col-sm-2 col-form-label">Git 地址</label>
+            <div class="col-sm-10">
+                <input type="text" name="git_address" class="form-control" required>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label class="col-sm-2 col-form-label">Token</label>
+            <div class="col-sm-10">
+                <input type="text" name="token" class="form-control" required>
+            </div>
+        </div>
+
+        <div id="groupsContainer"></div>
+
+        <button type="button" class="btn btn-primary btn-add-group" onclick="addGroup()">+ 添加配置组</button>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-success">确定</button>
+        </div>
+    </form>
+</div>
+
+<!-- 模态框：输入组名 -->
+<div class="modal fade" id="groupNameModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">输入配置组名称</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input
+                    type="text"
+                    id="inputGroupName"
+                    class="form-control"
+                    placeholder="例如：生产环境、测试集群"
+                    autofocus
+                >
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="confirmGroupName()">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='bootstrap.bundle.min.js') }}"></script>
+<script>
+let groupCount = 0;
+
+// 打开模态框时绑定键盘事件
+document.getElementById('groupNameModal').addEventListener('shown.bs.modal', function () {
+    const input = document.getElementById('inputGroupName');
+    input.value = '';
+    input.focus();
+
+    // 移除可能存在的旧监听器（避免重复绑定）
+    input.removeEventListener('keydown', handleGroupNameKeydown);
+    input.addEventListener('keydown', handleGroupNameKeydown);
+});
+
+function handleGroupNameKeydown(e) {
+    if (e.key === 'Enter') {
+        confirmGroupName();
+    } else if (e.key === 'Escape') {
+        bootstrap.Modal.getInstance(document.getElementById('groupNameModal')).hide();
+    }
+}
+
+function addGroup() {
+    const modal = new bootstrap.Modal(document.getElementById('groupNameModal'));
+    modal.show();
+}
+
+function confirmGroupName() {
+    const groupName = document.getElementById('inputGroupName').value.trim();
+    if (!groupName) {
+        alert('组名不能为空！');
+        return;
+    }
+
+    groupCount++;
+    const container = document.getElementById('groupsContainer');
+    const groupId = 'group-' + groupCount;
+
+    const div = document.createElement('div');
+    div.id = groupId;
+    div.className = 'group-section mb-4 p-3 border rounded';
+
+    div.innerHTML = `
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="fw-bold text-dark">${groupName}</span>
+            <button type="button" class="btn btn-sm p-0 text-body-secondary delete-btn" onclick="deleteGroup('${groupId}')">
+                🗑️
+            </button>
+        </div>
+        <input type="hidden" name="group_name_${groupCount}" value="${groupName}">
+        <!-- 输入框字段保持不变 -->
+        <div class="row mb-2">
+            <div class="col-md-6"><input type="text" name="appid_${groupCount}" class="form-control" placeholder="AppID" required></div>
+            <div class="col-md-6"><input type="text" name="static_token_${groupCount}" class="form-control" placeholder="静态token" required></div>
+        </div>
+        <div class="row mb-2">
+            <div class="col-md-3"><input type="text" name="region_${groupCount}" class="form-control" placeholder="Region"></div>
+            <div class="col-md-3"><input type="text" name="environ_${groupCount}" class="form-control" placeholder="Environ"></div>
+            <div class="col-md-3"><input type="text" name="onekey_${groupCount}" class="form-control" placeholder="主根"></div>
+            <div class="col-md-3"><input type="text" name="twokey_${groupCount}" class="form-control" placeholder="辅根"></div>
+        </div>
+        <div class="row">
+            <div class="col-md-6"><input type="text" name="baseprofile_${groupCount}" class="form-control" placeholder="基础profile文件路径"></div>
+            <div class="col-md-6"><input type="text" name="appendprofile_${groupCount}" class="form-control" placeholder="环境profile文件路径"></div>
+        </div>
+    `;
+    container.appendChild(div);
+    bootstrap.Modal.getInstance(document.getElementById('groupNameModal')).hide();
+}
+
+function deleteGroup(groupId) {
+    if (confirm('确定删除此配置组？')) {
+        document.getElementById(groupId)?.remove();
+    }
+}
+</script>
+</body>
+</html>
